@@ -29,9 +29,13 @@ class BlockingQueue : boost::noncopyable
 
   void put(const T& x)
   {
-    MutexLockGuard lock(mutex_);
-    queue_.push_back(x);
-    notEmpty_.notify(); // TODO: move outside of lock
+    //accelerate, see http://siwind.iteye.com/blog/1469216
+    { 
+      MutexLockGuard lock(mutex_);
+      queue_.push_back(x);
+    }
+    
+    notEmpty_.notify();
   }
 
   T take()
